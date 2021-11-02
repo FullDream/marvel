@@ -1,38 +1,42 @@
-import { Component } from "react";
-
+import { lazy, Suspense } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import AppHeader from "../appHeader/AppHeader";
-import RandomChar from "../randomChar/RandomChar";
-import CharList from "../charList/CharList";
-import CharInfo from "../charInfo/CharInfo";
+import Spinner from "../spinner/Spinner";
 
-import decoration from '../../resources/img/vision.png';
+const MainPage = lazy(() => import('../pages/MainPage')),
+    ComicsPage = lazy(() => import('../pages/ComicsPage')),
+    Page404 = lazy(() => import('../pages/404')),
+    SingleComicPage = lazy(() => import('../pages/SingleComicPage'));
 
-class App extends Component  {
-    state = {
-        selectedChar: null
-    }
 
-    onCharSelected = (id) => {
-        this.setState({
-            selectedChar: id
-        })
-    }
+const App = () => {
 
-    render() {
-        return (
+
+    return (
+        <Router>
             <div className="app">
-                <AppHeader/>
+                <AppHeader />
                 <main>
-                    <RandomChar/>
-                    <div className="char__content">
-                        <CharList onCharSelected={this.onCharSelected}/>
-                        <CharInfo charId={this.state.selectedChar}/>
-                    </div>
-                    <img className="bg-decoration" src={decoration} alt="vision"/>
+                    <Suspense fallback={<Spinner/>}>
+                        <Switch>
+                            <Route exact path='/'>
+                                <MainPage />
+                            </Route>
+                            <Route exact path='/comics'>
+                                <ComicsPage />
+                            </Route>
+                            <Route path='/comics/:comicId'>
+                                <SingleComicPage />
+                            </Route>
+                            <Route path='*'>
+                                <Page404 />
+                            </Route>
+                        </Switch>
+                    </Suspense>
                 </main>
             </div>
-        )
-    }
+        </Router>
+    )
 }
 
 export default App;
